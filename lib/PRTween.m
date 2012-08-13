@@ -19,7 +19,7 @@
     period.duration = duration;
     period.startOffset = [[PRTween sharedInstance] timeOffset];
     
-    return [period autorelease];
+    return period;
 }
 
 @end
@@ -37,14 +37,7 @@
     period.duration = duration;
     period.startOffset = [[PRTween sharedInstance] timeOffset];
     
-    return [period autorelease];
-}
-
-- (void)dealloc {
-    [startLerp release];
-    [endLerp release];
-    [tweenedLerp release];
-    [super dealloc];
+    return period;
 }
 
 @end
@@ -151,16 +144,6 @@
 @synthesize completeBlock;
 #endif
 
-- (void)dealloc {
-#if NS_BLOCKS_AVAILABLE
-    [updateBlock release];
-    [completeBlock release];
-#endif
-    [period release];
-    [target release];
-    [boundObject release];
-    [super dealloc];
-}
 
 @end
 
@@ -261,7 +244,7 @@ static NSArray *animationSelectorsForUIView = nil;
 + (PRTweenOperation *)tween:(id)object property:(NSString*)property from:(CGFloat)from to:(CGFloat)to duration:(CGFloat)duration timingFunction:(PRTweenTimingFunction)timingFunction target:(NSObject*)target completeSelector:(SEL)selector {
     
     PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from endValue:to duration:duration];
-    PRTweenOperation *operation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;
     operation.target = target;
@@ -279,7 +262,7 @@ static NSArray *animationSelectorsForUIView = nil;
 + (PRTweenOperation *)tween:(CGFloat *)ref from:(CGFloat)from to:(CGFloat)to duration:(CGFloat)duration timingFunction:(PRTweenTimingFunction)timingFunction target:(NSObject*)target completeSelector:(SEL)selector {
     
     PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from endValue:to duration:duration];
-    PRTweenOperation *operation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;
     operation.target = target;
@@ -303,7 +286,7 @@ static NSArray *animationSelectorsForUIView = nil;
 + (PRTweenOperation *)lerp:(id)object property:(NSString *)property period:(PRTweenLerpPeriod <PRTweenLerpPeriod> *)period  timingFunction:(PRTweenTimingFunction)timingFunction target:(NSObject *)target completeSelector:(SEL)selector {
     
     //PRTweenPeriod *period = [PRTweenLerpPeriod periodWithStartValue:from endValue:to duration:duration];
-    PRTweenOperation *operation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;
     operation.target = target;
@@ -322,7 +305,7 @@ static NSArray *animationSelectorsForUIView = nil;
 + (PRTweenOperation *)tween:(id)object property:(NSString*)property from:(CGFloat)from to:(CGFloat)to duration:(CGFloat)duration timingFunction:(PRTweenTimingFunction)timingFunction updateBlock:(PRTweenUpdateBlock)updateBlock completeBlock:(PRTweenCompleteBlock)completeBlock {
     
     PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from endValue:to duration:duration];
-    PRTweenOperation *operation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;
     operation.updateBlock = updateBlock;
@@ -340,7 +323,7 @@ static NSArray *animationSelectorsForUIView = nil;
 + (PRTweenOperation *)tween:(CGFloat *)ref from:(CGFloat)from to:(CGFloat)to duration:(CGFloat)duration timingFunction:(PRTweenTimingFunction)timingFunction updateBlock:(PRTweenUpdateBlock)updateBlock completeBlock:(PRTweenCompleteBlock)completeBlock {
     
     PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from endValue:to duration:duration];
-    PRTweenOperation *operation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;
     operation.updateBlock = updateBlock;
@@ -356,7 +339,7 @@ static NSArray *animationSelectorsForUIView = nil;
 + (PRTweenOperation *)lerp:(id)object property:(NSString *)property period:(PRTweenLerpPeriod <PRTweenLerpPeriod> *)period  timingFunction:(PRTweenTimingFunction)timingFunction updateBlock:(PRTweenUpdateBlock)updateBlock completeBlock:(PRTweenCompleteBlock)completeBlock {
     
     //PRTweenPeriod *period = [PRTweenLerpPeriod periodWithStartValue:from endValue:to duration:duration];
-    PRTweenOperation *operation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;
     operation.updateBlock = updateBlock;
@@ -584,7 +567,7 @@ complete:
                     completionBlock:(void (^)())completeBlock 
                      timingFunction:(PRTweenTimingFunction)timingFunction {
     
-    PRTweenOperation *tweenOperation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *tweenOperation = [PRTweenOperation new];
     tweenOperation.period = period;
     tweenOperation.timingFunction = timingFunction;
     tweenOperation.updateBlock = anUpdateBlock;
@@ -600,7 +583,7 @@ complete:
 
 - (PRTweenOperation*)addTweenPeriod:(PRTweenPeriod *)period target:(NSObject *)target selector:(SEL)selector timingFunction:(PRTweenTimingFunction)timingFunction {
     
-    PRTweenOperation *tweenOperation = [[PRTweenOperation new] autorelease];
+    PRTweenOperation *tweenOperation = [PRTweenOperation new];
     tweenOperation.period = period;
     tweenOperation.target = target;
     tweenOperation.timingFunction = timingFunction;
@@ -705,17 +688,12 @@ complete:
         }
         
         [tweenOperations removeObject:tweenOperation];
-        tweenOperation = nil;
     }
     [expiredTweenOperations removeAllObjects];
 }
 
 - (void)dealloc {
-    [tweenOperations release];
-    [expiredTweenOperations release];
     [timer invalidate];
-    
-    [super dealloc];
 }
 
 @end

@@ -94,8 +94,8 @@ typedef void (^PRTweenCompleteBlock)();
     BOOL canUseBuiltAnimation;
 }
 
-@property (nonatomic, retain) PRTweenPeriod *period;
-@property (nonatomic, retain) NSObject *target;
+@property (nonatomic, strong) PRTweenPeriod *period;
+@property (nonatomic, strong) NSObject *target;
 @property (nonatomic) SEL updateSelector;
 @property (nonatomic) SEL completeSelector;
 @property (nonatomic, assign) PRTweenTimingFunction timingFunction;
@@ -106,7 +106,7 @@ typedef void (^PRTweenCompleteBlock)();
 #endif
 
 @property (nonatomic, assign) CGFloat *boundRef;
-@property (nonatomic, retain) id boundObject;
+@property (nonatomic, strong) id boundObject;
 @property (nonatomic) SEL boundGetter;
 @property (nonatomic) SEL boundSetter;
 @property (nonatomic) BOOL override;

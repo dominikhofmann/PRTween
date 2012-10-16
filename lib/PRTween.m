@@ -22,6 +22,18 @@
     return period;
 }
 
++ (id)periodWithStartValue:(CGFloat)aStartValue endValue:(CGFloat)anEndValue duration:(CGFloat)duration delay:(CGFloat)delay {
+    PRTweenPeriod *period = [PRTweenPeriod new];
+    
+    period.startValue = period.tweenedValue = aStartValue;
+    period.endValue = anEndValue;
+    period.duration = duration;
+	period.delay = delay;
+    period.startOffset = [[PRTween sharedInstance] timeOffset];
+    
+    return period;
+}
+
 @end
 
 @implementation PRTweenLerpPeriod
@@ -165,6 +177,12 @@
 #if NS_BLOCKS_AVAILABLE
 + (PRTweenOperation *)lerp:(id)object property:(NSString *)property from:(CGPoint)from to:(CGPoint)to duration:(CGFloat)duration timingFunction:(PRTweenTimingFunction)timingFunction updateBlock:(PRTweenUpdateBlock)updateBlock completeBlock:(PRTweenCompleteBlock)completeBlock {
     return [PRTween lerp:object property:property period:[PRTweenCGPointLerpPeriod periodWithStartCGPoint:from endCGPoint:to duration:duration] timingFunction:timingFunction updateBlock:updateBlock completeBlock:completeBlock];
+}
+
++ (PRTweenOperation *)lerp:(id)object property:(NSString *)property from:(CGPoint)from to:(CGPoint)to duration:(CGFloat)duration delay:(CGFloat)delay timingFunction:(PRTweenTimingFunction)timingFunction updateBlock:(PRTweenUpdateBlock)updateBlock completeBlock:(PRTweenCompleteBlock)completeBlock {
+	PRTweenCGPointLerpPeriod *period = [PRTweenCGPointLerpPeriod periodWithStartCGPoint:from endCGPoint:to duration:duration];
+	period.delay = delay;
+    return [PRTween lerp:object property:property period:period timingFunction:timingFunction updateBlock:updateBlock completeBlock:completeBlock];
 }
 #endif
 

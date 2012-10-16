@@ -10,6 +10,12 @@ typedef void (^PRTweenUpdateBlock)(PRTweenPeriod *period);
 typedef void (^PRTweenCompleteBlock)();
 #endif
 
+enum {
+	PRTweenHasTweenedValueObserver	= 1 << 0,
+	PRTweenHasTweenedLerpObserver	= 1 << 1,
+};
+typedef NSUInteger PRTweenHasTweenedObserverOptions;
+
 @interface PRTweenPeriod : NSObject {
     CGFloat duration;
     CGFloat delay;
@@ -85,10 +91,12 @@ typedef void (^PRTweenCompleteBlock)();
     SEL boundSetter;
     
     BOOL override;
+	
+	PRTweenHasTweenedObserverOptions observers;
     
 #if NS_BLOCKS_AVAILABLE
     PRTweenUpdateBlock updateBlock;
-    PRTweenCompleteBlock completeBlock; 
+    PRTweenCompleteBlock completeBlock;
 #endif
     
     @private
@@ -111,6 +119,8 @@ typedef void (^PRTweenCompleteBlock)();
 @property (nonatomic) SEL boundGetter;
 @property (nonatomic) SEL boundSetter;
 @property (nonatomic) BOOL override;
+
+@property (nonatomic) PRTweenHasTweenedObserverOptions observers;
 
 @end
 

@@ -150,6 +150,7 @@
 @synthesize boundSetter;
 @synthesize canUseBuiltAnimation;
 @synthesize override;
+@synthesize observers;
 
 #if NS_BLOCKS_AVAILABLE
 @synthesize updateBlock;
@@ -269,7 +270,8 @@ static NSArray *animationSelectorsForUIView = nil;
     operation.boundObject = object;
     operation.boundGetter = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter = [PRTween setterFromProperty:property];
-    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+//    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
     
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
     return operation;
@@ -285,7 +287,9 @@ static NSArray *animationSelectorsForUIView = nil;
     operation.target = target;
     operation.completeSelector = selector;
     operation.boundRef = ref;
-    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+		//	operation.observers
+//    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
     
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
     return operation;
@@ -311,7 +315,8 @@ static NSArray *animationSelectorsForUIView = nil;
     operation.boundObject = object;
     operation.boundGetter = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter = [PRTween setterFromProperty:property];
-    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" options:NSKeyValueObservingOptionNew context:NULL];
+//    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" options:NSKeyValueObservingOptionNew context:NULL];
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" observerOptions:PRTweenHasTweenedLerpObserver operation:operation];
     
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
     return operation;
@@ -330,7 +335,8 @@ static NSArray *animationSelectorsForUIView = nil;
     operation.boundObject = object;
     operation.boundGetter = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter = [PRTween setterFromProperty:property];
-    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+//    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
     
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
     return operation;
@@ -346,7 +352,8 @@ static NSArray *animationSelectorsForUIView = nil;
     operation.updateBlock = updateBlock;
     operation.completeBlock = completeBlock;
     operation.boundRef = ref;
-    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+//    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" options:NSKeyValueObservingOptionNew context:NULL];
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
     
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
     return operation;
@@ -364,13 +371,19 @@ static NSArray *animationSelectorsForUIView = nil;
     operation.boundObject = object;
     operation.boundGetter = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter = [PRTween setterFromProperty:property];
-    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" options:NSKeyValueObservingOptionNew context:NULL];
+//    [operation addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" options:NSKeyValueObservingOptionNew context:NULL];
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" observerOptions:PRTweenHasTweenedLerpObserver operation:operation];
     
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
     return operation;
     
 }
 #endif
+
++ (void)addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath observerOptions:(PRTweenHasTweenedObserverOptions)observerOptions operation:(PRTweenOperation *)operation {
+	[operation addObserver:observer forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:NULL];
+	operation.observers = operation.observers | observerOptions;
+}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     
@@ -694,15 +707,15 @@ complete:
             }
         }
 
-        // @HACK: Come up with a better pattern for removing observers.
-        @try {
+		if (tweenOperation.observers == PRTweenHasTweenedValueObserver) {
             [tweenOperation removeObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue"];
-        } @catch (id exception) {
-        }
-        @try {
+			tweenOperation.observers = tweenOperation.observers & ~PRTweenHasTweenedValueObserver;
+		}
+
+		if (tweenOperation.observers == PRTweenHasTweenedLerpObserver) {
             [tweenOperation removeObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp"];
-        } @catch (id exception) {
-        }
+			tweenOperation.observers = tweenOperation.observers & ~PRTweenHasTweenedLerpObserver;
+		}
         
         [tweenOperations removeObject:tweenOperation];
         tweenOperation = nil;

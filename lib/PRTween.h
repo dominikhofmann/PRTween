@@ -359,6 +359,7 @@ typedef NSUInteger PRTweenHasTweenedObserverOptions;
 					  timingFunction:(PRTweenTimingFunction)timingFunction;
 
 - (void)removeTweenOperation:(PRTweenOperation*)tweenOperation;
+- (void)removeAllTweenOperations;
 
 #if NS_BLOCKS_AVAILABLE
 + (PRTweenOperation *)tween:(id)object
@@ -383,6 +384,15 @@ typedef NSUInteger PRTweenHasTweenedObserverOptions;
 + (PRTweenOperation *)tween:(CGFloat*)ref
 					   from:(CGFloat)from to:(CGFloat)to
 				   duration:(CGFloat)duration
+			 timingFunction:(PRTweenTimingFunction)timingFunction
+				updateBlock:(PRTweenUpdateBlock)updateBlock
+			  completeBlock:(PRTweenCompleteBlock)completeBlock;
+
++ (PRTweenOperation *)tween:(CGFloat *)ref
+					   from:(CGFloat)from
+						 to:(CGFloat)to
+				   duration:(CGFloat)duration
+					  delay:(CGFloat)delay
 			 timingFunction:(PRTweenTimingFunction)timingFunction
 				updateBlock:(PRTweenUpdateBlock)updateBlock
 			  completeBlock:(PRTweenCompleteBlock)completeBlock;

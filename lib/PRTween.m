@@ -753,6 +753,32 @@ static NSArray *animationSelectorsForUIView = nil;
     
 }
 
++ (PRTweenOperation *)tween:(CGFloat *)ref
+					   from:(CGFloat)from
+						 to:(CGFloat)to
+				   duration:(CGFloat)duration
+					  delay:(CGFloat)delay
+			 timingFunction:(PRTweenTimingFunction)timingFunction
+				updateBlock:(PRTweenUpdateBlock)updateBlock
+			  completeBlock:(PRTweenCompleteBlock)completeBlock {
+    
+    PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from
+													   endValue:to
+													   duration:duration
+														  delay:delay];
+    PRTweenOperation *operation = [PRTweenOperation new];
+    operation.period = period;
+    operation.timingFunction = timingFunction;
+    operation.updateBlock = updateBlock;
+    operation.completeBlock = completeBlock;
+    operation.boundRef = ref;
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
+    
+    [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
+    return operation;
+    
+}
+
 + (PRTweenOperation *)lerp:(id)object
 				  property:(NSString *)property
 					period:(PRTweenLerpPeriod <PRTweenLerpPeriod> *)period
@@ -1030,6 +1056,12 @@ complete:
             [expiredTweenOperations addObject:tweenOperation];
         }
     }
+}
+
+- (void)removeAllTweenOperations {
+	for (PRTweenOperation *tweenOperation in tweenOperations) {
+		[expiredTweenOperations addObject:tweenOperation];
+	}
 }
 
 + (SEL)setterFromProperty:(NSString *)property {

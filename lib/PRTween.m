@@ -571,7 +571,8 @@ static NSArray *animationSelectorsForUIView = nil;
 
 + (PRTweenOperation *)tween:(CGFloat *)ref
 					   from:(CGFloat)from
-						 to:(CGFloat)to duration:(CGFloat)duration
+						 to:(CGFloat)to
+				   duration:(CGFloat)duration
 			 timingFunction:(PRTweenTimingFunction)timingFunction
 					 target:(NSObject*)target
 		   completeSelector:(SEL)selector {
@@ -579,6 +580,32 @@ static NSArray *animationSelectorsForUIView = nil;
     PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from
 													   endValue:to
 													   duration:duration];
+    PRTweenOperation *operation = [PRTweenOperation new];
+    operation.period = period;
+    operation.timingFunction = timingFunction;
+    operation.target = target;
+    operation.completeSelector = selector;
+    operation.boundRef = ref;
+	[self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
+    
+    [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
+    return operation;
+    
+}
+
++ (PRTweenOperation *)tween:(CGFloat *)ref
+					   from:(CGFloat)from
+						 to:(CGFloat)to
+				   duration:(CGFloat)duration
+					  delay:(CGFloat)delay
+			 timingFunction:(PRTweenTimingFunction)timingFunction
+					 target:(NSObject*)target
+		   completeSelector:(SEL)selector {
+    
+    PRTweenPeriod *period = [PRTweenPeriod periodWithStartValue:from
+													   endValue:to
+													   duration:duration
+														  delay:delay];
     PRTweenOperation *operation = [PRTweenOperation new];
     operation.period = period;
     operation.timingFunction = timingFunction;

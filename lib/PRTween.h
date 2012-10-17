@@ -320,6 +320,15 @@ typedef NSUInteger PRTweenHasTweenedObserverOptions;
 					 target:(NSObject*)target
 		   completeSelector:(SEL)selector;
 
++ (PRTweenOperation *)tween:(CGFloat *)ref
+					   from:(CGFloat)from
+						 to:(CGFloat)to
+				   duration:(CGFloat)duration
+					  delay:(CGFloat)delay
+			 timingFunction:(PRTweenTimingFunction)timingFunction
+					 target:(NSObject*)target
+		   completeSelector:(SEL)selector;
+
 + (PRTweenOperation *)tween:(id)object
 				   property:(NSString*)property
 					   from:(CGFloat)from

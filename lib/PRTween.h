@@ -114,9 +114,10 @@ typedef void (^PRTweenCompleteBlock)();
 @property (nonatomic) BOOL override;
 @property (nonatomic) BOOL invalid;
 
+- (void)invalidate;
+
 @end
 
-- (void)invalidate;
 
 @interface PRTweenCGPointLerp : NSObject
 + (PRTweenOperation *)lerp:(id)object property:(NSString*)property from:(CGPoint)from to:(CGPoint)to duration:(CGFloat)duration timingFunction:(PRTweenTimingFunction)timingFunction target:(NSObject *)target completeSelector:(SEL)selector;

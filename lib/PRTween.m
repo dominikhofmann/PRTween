@@ -138,11 +138,17 @@
 @synthesize boundSetter;
 @synthesize canUseBuiltAnimation;
 @synthesize override;
+@synthesize invalid;
 
 #if NS_BLOCKS_AVAILABLE
 @synthesize updateBlock;
 @synthesize completeBlock;
 #endif
+
+- (void)invalidate
+{
+    invalid = YES;
+}
 
 @end
 
@@ -644,47 +650,54 @@ complete:
         if (timingFunction == NULL) {
             timingFunction = self.defaultTimingFunction;
         }
-        
-        if (timingFunction != NULL && tweenOperation.canUseBuiltAnimation == NO) {
-            if (timeOffset <= period.startOffset + period.delay + period.duration) {
-                if ([period isKindOfClass:[PRTweenLerpPeriod class]]) {
-                    if ([period conformsToProtocol:@protocol(PRTweenLerpPeriod)]) {
-                        PRTweenLerpPeriod <PRTweenLerpPeriod> *lerpPeriod = (PRTweenLerpPeriod <PRTweenLerpPeriod> *)period;
-                        CGFloat progress = timingFunction(timeOffset - period.startOffset - period.delay, 0.0, 1.0, period.duration);
-                        [lerpPeriod setProgress:progress];
+
+        if (tweenOperation.invalid)
+        {
+            [expiredTweenOperations addObject:tweenOperation];
+        }
+        else
+        {
+            if (timingFunction != NULL && tweenOperation.canUseBuiltAnimation == NO) {
+                if (timeOffset <= period.startOffset + period.delay + period.duration) {
+                    if ([period isKindOfClass:[PRTweenLerpPeriod class]]) {
+                        if ([period conformsToProtocol:@protocol(PRTweenLerpPeriod)]) {
+                            PRTweenLerpPeriod <PRTweenLerpPeriod> *lerpPeriod = (PRTweenLerpPeriod <PRTweenLerpPeriod> *)period;
+                            CGFloat progress = timingFunction(timeOffset - period.startOffset - period.delay, 0.0, 1.0, period.duration);
+                            [lerpPeriod setProgress:progress];
+                        } else {
+                            // @TODO: Throw exception
+                            NSLog(@"Class doesn't conform to PRTweenLerp");
+                        }
                     } else {
-                        // @TODO: Throw exception
-                        NSLog(@"Class doesn't conform to PRTweenLerp");
+                        // if tween operation is valid, calculate tweened value using timing function
+                        period.tweenedValue = timingFunction(timeOffset - period.startOffset - period.delay, period.startValue, period.endValue - period.startValue, period.duration);
                     }
                 } else {
-                    // if tween operation is valid, calculate tweened value using timing function
-                    period.tweenedValue = timingFunction(timeOffset - period.startOffset - period.delay, period.startValue, period.endValue - period.startValue, period.duration);
+                    // move expired tween operations to list for cleanup
+                    period.tweenedValue = period.endValue;
+                    [expiredTweenOperations addObject:tweenOperation];
                 }
-            } else {
-                // move expired tween operations to list for cleanup
-                period.tweenedValue = period.endValue;
-                [expiredTweenOperations addObject:tweenOperation];
-            }
-            
-            NSObject *target = tweenOperation.target;
-            SEL selector = tweenOperation.updateSelector;
-            
-            if (period != nil) {
-                if (target != nil && selector != NULL) {
-                    [target performSelector:selector withObject:period afterDelay:0];    
+
+                NSObject *target = tweenOperation.target;
+                SEL selector = tweenOperation.updateSelector;
+
+                if (period != nil) {
+                    if (target != nil && selector != NULL) {
+                        [target performSelector:selector withObject:period afterDelay:0];
+                    }
+
+                    // Check to see if blocks/GCD are supported
+                    if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_4_0) {
+                        // fire off update block
+                        if (tweenOperation.updateBlock != NULL) {
+                            tweenOperation.updateBlock(period);
+                        }
+                    }
                 }
-                
-                // Check to see if blocks/GCD are supported
-                if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_4_0) {
-                    // fire off update block
-                    if (tweenOperation.updateBlock != NULL) {
-                        tweenOperation.updateBlock(period);
-                    } 
+            } else if (tweenOperation.canUseBuiltAnimation == YES) {
+                if (timeOffset > period.startOffset + period.delay + period.duration) {
+                    [expiredTweenOperations addObject:tweenOperation];
                 }
-            }
-        } else if (tweenOperation.canUseBuiltAnimation == YES) {
-            if (timeOffset > period.startOffset + period.delay + period.duration) {
-                [expiredTweenOperations addObject:tweenOperation];
             }
         }
     }

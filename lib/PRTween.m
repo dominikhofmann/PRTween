@@ -433,6 +433,7 @@ static NSArray *animationSelectorsForUIView = nil;
     
     // create new timer if there are no operations running
     if (timer == nil) {
+        lastAbsoluteTime = 0;
         timer = [NSTimer scheduledTimerWithTimeInterval:kPRTweenFramerate target:self selector:@selector(update) userInfo:nil repeats:YES];
     }
     
@@ -631,7 +632,9 @@ complete:
 }
 
 - (void)update {
-    timeOffset += kPRTweenFramerate;
+    // increase the timeOffset by the actual amount of time that has passed
+    timeOffset += (lastAbsoluteTime == 0) ? kPRTweenFramerate : (CFAbsoluteTimeGetCurrent() - lastAbsoluteTime);
+    lastAbsoluteTime = CFAbsoluteTimeGetCurrent();
     
     for (PRTweenOperation *tweenOperation in tweenOperations) {
         

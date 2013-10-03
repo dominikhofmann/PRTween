@@ -296,15 +296,15 @@ typedef NSUInteger PRTweenHasTweenedObserverOptions;
                updateBlock:(PRTweenUpdateBlock)updateBlock
              completeBlock:(PRTweenCompleteBlock)completeBlock;
 
-+ (PRTweenOperation *)lerp:(id)object
-                  property:(NSString *)property
-                      from:(CGSize)from
-                        to:(CGSize)to
-                  duration:(CGFloat)duration
-                     delay:(CGFloat)delay
-            timingFunction:(PRTweenTimingFunction)timingFunction
-               updateBlock:(PRTweenUpdateBlock)updateBlock
-             completeBlock:(PRTweenCompleteBlock)completeBlock;
+//+ (PRTweenOperation *)lerp:(id)object
+//                  property:(NSString *)property
+//                      from:(CGSize)from
+//                        to:(CGSize)to
+//                  duration:(CGFloat)duration
+//                     delay:(CGFloat)delay
+//            timingFunction:(PRTweenTimingFunction)timingFunction
+//               updateBlock:(PRTweenUpdateBlock)updateBlock
+//             completeBlock:(PRTweenCompleteBlock)completeBlock;
 
 #endif
 @end

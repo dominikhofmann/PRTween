@@ -160,11 +160,11 @@ CGFloat PRTweenTimingFunctionQuartInOut (CGFloat t, CGFloat b, CGFloat c, CGFloa
 }
 
 CGFloat PRTweenTimingFunctionQuintOut (CGFloat t, CGFloat b, CGFloat c, CGFloat d) {
-    return c*(t/=d)*t*t*t*t + b;
+	return c*((t=t/d-1)*t*t*t*t + 1) + b;
 }
 
 CGFloat PRTweenTimingFunctionQuintIn (CGFloat t, CGFloat b, CGFloat c, CGFloat d) {
-    return c*((t=t/d-1)*t*t*t*t + 1) + b;
+	return c*(t/=d)*t*t*t*t + b;
 }
 
 CGFloat PRTweenTimingFunctionQuintInOut (CGFloat t, CGFloat b, CGFloat c, CGFloat d) {

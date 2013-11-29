@@ -1,5 +1,4 @@
-#import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 #import "PRTweenTimingFunctions.h"
 
 typedef CGFloat(*PRTweenTimingFunction)(CGFloat, CGFloat, CGFloat, CGFloat);
@@ -9,7 +8,7 @@ typedef CGFloat(*PRTweenTimingFunction)(CGFloat, CGFloat, CGFloat, CGFloat);
 
 typedef void (^PRTweenUpdateBlock)(PRTweenPeriod *period);
 
-typedef void       (^PRTweenCompleteBlock)();
+typedef void       (^PRTweenCompleteBlock)(BOOL finished);
 
 #endif
 
@@ -127,6 +126,7 @@ typedef NSUInteger PRTweenHasTweenedObserverOptions;
     SEL boundSetter;
 
     BOOL override;
+    BOOL wasPreempted;
 
     PRTweenHasTweenedObserverOptions observers;
 
@@ -155,6 +155,7 @@ typedef NSUInteger PRTweenHasTweenedObserverOptions;
 @property(nonatomic) SEL        boundGetter;
 @property(nonatomic) SEL        boundSetter;
 @property(nonatomic) BOOL       override;
+@property(nonatomic) BOOL       wasPreempted;
 
 @property(nonatomic) PRTweenHasTweenedObserverOptions observers;
 

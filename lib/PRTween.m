@@ -217,6 +217,7 @@
 @synthesize boundSetter;
 @synthesize canUseBuiltAnimation;
 @synthesize override;
+@synthesize wasPreempted;
 @synthesize observers;
 
 #if NS_BLOCKS_AVAILABLE
@@ -544,6 +545,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.boundObject      = object;
     operation.boundGetter      = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter      = [PRTween setterFromProperty:property];
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
@@ -568,6 +570,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.target           = target;
     operation.completeSelector = selector;
     operation.boundRef         = ref;
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
@@ -594,6 +597,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.target           = target;
     operation.completeSelector = selector;
     operation.boundRef         = ref;
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
@@ -643,6 +647,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.boundObject      = object;
     operation.boundGetter      = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter      = [PRTween setterFromProperty:property];
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" observerOptions:PRTweenHasTweenedLerpObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
@@ -672,6 +677,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.boundObject    = object;
     operation.boundGetter    = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter    = [PRTween setterFromProperty:property];
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
@@ -701,6 +707,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.boundObject    = object;
     operation.boundGetter    = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter    = [PRTween setterFromProperty:property];
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0];
@@ -725,6 +732,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.updateBlock    = updateBlock;
     operation.completeBlock  = completeBlock;
     operation.boundRef       = ref;
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
@@ -751,6 +759,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.updateBlock    = updateBlock;
     operation.completeBlock  = completeBlock;
     operation.boundRef       = ref;
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedValue" observerOptions:PRTweenHasTweenedValueObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
@@ -774,6 +783,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     operation.boundObject    = object;
     operation.boundGetter    = NSSelectorFromString([NSString stringWithFormat:@"%@", property]);
     operation.boundSetter    = [PRTween setterFromProperty:property];
+    operation.wasPreempted     = NO;
     [self addObserver:[PRTween sharedInstance] forKeyPath:@"period.tweenedLerp" observerOptions:PRTweenHasTweenedLerpObserver operation:operation];
 
     [[PRTween sharedInstance] performSelector:@selector(addTweenOperation:) withObject:operation afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
@@ -1004,13 +1014,13 @@ static NSArray *animationSelectorsForUIView        = nil;
 
 - (PRTweenOperation *)addTweenPeriod:(PRTweenPeriod *)period
                          updateBlock:(void (^)(PRTweenPeriod *period))updateBlock
-                     completionBlock:(void (^)())completeBlock {
+                     completionBlock:(void (^)(BOOL finished))completeBlock {
     return [self addTweenPeriod:period updateBlock:updateBlock completionBlock:completeBlock timingFunction:self.defaultTimingFunction];
 }
 
 - (PRTweenOperation *)addTweenPeriod:(PRTweenPeriod *)period
                          updateBlock:(void (^)(PRTweenPeriod *period))anUpdateBlock
-                     completionBlock:(void (^)())completeBlock
+                     completionBlock:(void (^)(BOOL finished))completeBlock
                       timingFunction:(PRTweenTimingFunction)timingFunction {
 
     PRTweenOperation *tweenOperation = [PRTweenOperation new];
@@ -1018,6 +1028,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     tweenOperation.timingFunction = timingFunction;
     tweenOperation.updateBlock    = anUpdateBlock;
     tweenOperation.completeBlock  = completeBlock;
+    tweenOperation.wasPreempted   = NO;
     return [self addTweenOperation:tweenOperation];
 
 }
@@ -1038,6 +1049,7 @@ static NSArray *animationSelectorsForUIView        = nil;
     tweenOperation.target         = target;
     tweenOperation.timingFunction = timingFunction;
     tweenOperation.updateSelector = selector;
+    tweenOperation.wasPreempted   = NO;
 
     return [self addTweenOperation:tweenOperation];
 
@@ -1046,6 +1058,7 @@ static NSArray *animationSelectorsForUIView        = nil;
 - (void)removeTweenOperation:(PRTweenOperation *)tweenOperation {
     if (tweenOperation != nil) {
         if ([tweenOperations containsObject:tweenOperation]) {
+            tweenOperation.wasPreempted = YES;
             [expiredTweenOperations addObject:tweenOperation];
         }
     }
@@ -1053,6 +1066,7 @@ static NSArray *animationSelectorsForUIView        = nil;
 
 - (void)removeAllTweenOperations {
     for (PRTweenOperation *tweenOperation in tweenOperations) {
+        tweenOperation.wasPreempted = YES;
         [expiredTweenOperations addObject:tweenOperation];
     }
 }
@@ -1062,7 +1076,7 @@ static NSArray *animationSelectorsForUIView        = nil;
             capitalizedString]]]);
 }
 
-- (void)update {
+- (void) update {
     timeOffset += kPRTweenFramerate;
 
     for (PRTweenOperation *tweenOperation in tweenOperations) {
@@ -1127,10 +1141,11 @@ static NSArray *animationSelectorsForUIView        = nil;
     for (__strong PRTweenOperation *tweenOperation in expiredTweenOperations) {
 
         if (tweenOperation.completeSelector) [tweenOperation.target performSelector:tweenOperation.completeSelector withObject:nil afterDelay:0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+        
         // Check to see if blocks/GCD are supported
         if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_4_0) {
             if (tweenOperation.completeBlock != NULL) {
-                tweenOperation.completeBlock();
+                tweenOperation.completeBlock(!tweenOperation.wasPreempted);
             }
         }
 

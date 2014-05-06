@@ -75,8 +75,9 @@
 - (IBAction)blockTapped {
      activeTweenOperation = [[PRTween sharedInstance] addTweenPeriod:[PRTweenPeriod periodWithStartValue:0 endValue:904 duration:1.5] updateBlock:^(PRTweenPeriod *period) {
      testView.frame = CGRectMake(0, period.tweenedValue, 100, 100);
-     } completionBlock:^(void) {
-         NSLog(@"Completed tween");
+     } completionBlock:^(BOOL finished) {
+         if (finished) NSLog(@"Completed tween");
+         else NSLog(@"Tween preempted before completion.");
      }];
 }
 

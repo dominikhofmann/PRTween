@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "PRTweenTimingFunctions.h"
+#import "PRTweenLinearDamping.h"
 
 typedef CGFloat(*PRTweenTimingFunction)(CGFloat, CGFloat, CGFloat, CGFloat);
 

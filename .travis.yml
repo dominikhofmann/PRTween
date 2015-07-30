@@ -1,0 +1,11 @@
+
+language: objective-c
+
+before_install:
+- gem install cocoapods
+
+script:
+- pod repo update --silent
+- pod lib lint
+- cd example
+- xctool -project PRTween.xcodeproj -scheme 'PRTween' -configuration Release -sdk iphonesimulator -arch i386 build
